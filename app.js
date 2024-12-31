@@ -8,10 +8,10 @@ selectLan.addEventListener('change', (event) => {
 });
 
 const translateText = async (text, lang) => {
-  const url = `https://api.mymemory.translated.net/get?q=${text.replace(
-    ' ',
-    '%20'
-  )}&langpair=en|${lang.split('-')[0].toLowerCase()}`;
+  // const url = `https://api.mymemory.translated.net/get?q=${text.replace(
+  //   ' ',
+  //   '%20'
+  // )}&langpair=en|${lang.split('-')[0].toLowerCase()}`;
 
   const res = await fetch(
     `https://api.mymemory.translated.net/get?q=${text.replace(
@@ -23,7 +23,7 @@ const translateText = async (text, lang) => {
   return data.responseData.translatedText;
 };
 
-const generateVoiceOnUserChooseLang = async (texts, lang) => {
+const generateVoiceOnUserChooseLang = async (texts, userChooseLang) => {
   const utternace = new SpeechSynthesisUtterance();
 
   utternace.lang = userChooseLang;
@@ -32,7 +32,6 @@ const generateVoiceOnUserChooseLang = async (texts, lang) => {
   utternace.rate = 1;
   utternace.volume = 1;
 
-  console.log(userChooseLang);
   speechSynthesis.speak(utternace);
 };
 
@@ -43,6 +42,20 @@ speakButton.addEventListener('click', async (event) => {
     textArea.value = '';
     return;
   }
-  const translated = await translateText(textArea.value, userChooseLang);
-  await generateVoiceOnUserChooseLang(translated, userChooseLang);
+
+  if (!userChooseLang) {
+    userChooseLang = 'en-US';
+    const utternace = new SpeechSynthesisUtterance();
+
+    utternace.lang = userChooseLang;
+    utternace.text = textArea.value;
+    utternace.pitch = 1;
+    utternace.rate = 1;
+    utternace.volume = 1;
+
+    speechSynthesis.speak(utternace);
+  } else {
+    const translated = await translateText(textArea.value, userChooseLang);
+    await generateVoiceOnUserChooseLang(translated, userChooseLang);
+  }
 });
